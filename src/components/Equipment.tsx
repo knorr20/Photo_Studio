@@ -1,0 +1,239 @@
+import React from 'react';
+import { Camera, Lightbulb, Wind, Volume2, Monitor, Palette } from 'lucide-react';
+import { useScrollReveal } from '../hooks/useScrollReveal';
+
+const Equipment = () => {
+  const { ref: headerRef, isVisible: headerVisible } = useScrollReveal({ threshold: 0.2 });
+  const { ref: gridRef, isVisible: gridVisible } = useScrollReveal({ threshold: 0.05 });
+  const { ref: backdropRef, isVisible: backdropVisible } = useScrollReveal({ threshold: 0.1 });
+
+  const allEquipment = [
+    {
+      icon: <Lightbulb className="h-6 w-6" />,
+      name: "Profoto D2 500Ws AirTTL Monolights",
+      quantity: "2x",
+      description: "Professional studio lighting",
+      imageSrc: "/d-2 2x.png",
+      altText: "Profoto D2 500Ws AirTTL Monolight professional studio lighting equipment"
+    },
+    {
+      icon: <Lightbulb className="h-6 w-6" />,
+      name: "Profoto Pro-D3 750Ws Monolight",
+      quantity: "1x",
+      description: "High-power studio light",
+      imageSrc: "/d-3 1x.png",
+      altText: "Profoto Pro-D3 750Ws Monolight high-power professional studio lighting"
+    },
+    {
+      icon: <Monitor className="h-6 w-6" />,
+      name: "Profoto Strip Softbox (1 x 4', Silver Interior)",
+      quantity: "2x",
+      description: "Strip lighting modifier",
+      imageSrc: "/strip 1x4 profoto 23 films.png",
+      altText: "Profoto Strip Softbox 1x4 feet with silver interior for professional photography lighting"
+    },
+    {
+      name: "Profoto Zoom Reflector 2",
+      quantity: "2x",
+      description: "Light focusing reflector",
+      imageSrc: "/Zoom_reflector_profoto.png",
+      altText: "Profoto Zoom Reflector 2 light focusing reflector for studio photography"
+    },
+    {
+      name: "Profoto Rectangular Softbox (3 x 4', Silver Interior)",
+      quantity: "1x",
+      description: "Large softbox modifier",
+      imageSrc: "/profoto_201505_rectangular_softbox_3_x_1726738217_1848650 (1)-1.png",
+      altText: "Profoto Rectangular Softbox 3x4 feet with silver interior for professional studio lighting and photography"
+    },
+    {
+      name: "Profoto Silver Softlight Beauty Dish Reflector - 20.5\"",
+      quantity: "1x",
+      description: "Beauty dish for portraits",
+      imageSrc: "/Profoto-Beauty-Dish-Silver.png",
+      altText: "Profoto Silver Softlight Beauty Dish Reflector for professional studio photography and portraits"
+    },
+    {
+      name: "V-FLAT WORLD Foldable V-Flat 2.0",
+      quantity: "2x",
+      description: "Light control panels",
+      imageSrc: "/Foldable-V-Flat-BlackWhite-23.png",
+      altText: "V-FLAT WORLD Foldable V-Flat 2.0 light control panels for professional studio photography lighting control"
+    },
+    {
+      name: "Heavy Duty Direct Drive Tilt Drum Fan",
+      quantity: "1x",
+      description: "Air circulation and effects",
+      imageSrc: "/orange-commercial-electric-industrial-fans.png",
+      altText: "Heavy Duty Direct Drive Tilt Drum Fan for studio air circulation and special effects"
+    },
+    {
+      name: "Bluetooth Speaker",
+      quantity: "1x",
+      description: "High-quality audio for shoots",
+      imageSrc: "/bose speaker.png",
+      altText: "Bose Bluetooth Speaker for studio audio in Los Angeles, Burbank - perfect for music during photo and video shoots at FILMS Studio"
+    },
+    {
+      icon: <Monitor className="h-6 w-6" />,
+      name: "Backdrop holder and stands",
+      quantity: "1x",
+      description: "Background support system",
+      imageSrc: "/BACKGROUNDS.png",
+      altText: "Professional backdrop holder and stands system for photography and video production at FILMS Studio in North Hollywood, Los Angeles - supports seamless paper rolls and fabric backgrounds"
+    }
+  ];
+
+  const backdropOptions = [
+    {
+      option: "FREE",
+      description: "If the backdrop <strong>doesn't touch the floor and remains undamaged</strong>"
+    },
+    {
+      option: "$30",
+      description: "One backdrop sweep. <strong>Up to 6 ft</strong> on the floor"
+    },
+    {
+      option: "$60",
+      description: "More than one backdrop sweep. You are using <strong>more than 6 ft</strong> on the floor"
+    },
+    {
+      option: "$80",
+      description: "<strong>A full seamless paper roll</strong>. Size 107\"x36'"
+    }
+  ];
+
+  return (
+    <section id="equipment" className="pt-20 pb-10 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div ref={headerRef} className={`text-center mb-16 ${headerVisible ? 'animate-fade-in-up' : 'scroll-hidden'}`}>
+          <h2 className="text-4xl font-heading font-black text-gray-900 mb-4">INCLUDED IN BASE RENTAL</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Professional-grade equipment included in your base rental
+          </p>
+        </div>
+
+        {/* All Equipment */}
+        <div className="mb-16" ref={gridRef}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {allEquipment.map((item, index) => (
+              <div
+                key={index}
+                className={`bg-gray-50 p-6 hover:shadow-lg transition-shadow duration-300 ${
+                  gridVisible ? 'animate-fade-in-up' : 'scroll-hidden'
+                }`}
+                style={gridVisible ? { animationDelay: `${index * 80}ms` } : undefined}
+              >
+                <div className="text-center">
+                  {item.imageSrc ? (
+                    <div className="mb-4 flex justify-center">
+                      <img
+                        src={item.imageSrc}
+                        alt={item.altText || `${item.name} - Professional studio equipment available for rental`}
+                        className="w-24 h-24 object-contain"
+                        loading="lazy"
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-gray-700 mb-4 flex justify-center">
+                      {item.icon}
+                    </div>
+                  )}
+                  <div className="bg-gray-900 text-white px-2 py-1 rounded text-sm font-heading font-black mb-3 inline-block">
+                    {item.quantity}
+                  </div>
+                  <h4 className="font-heading font-black text-gray-900 mb-2">{item.name}</h4>
+                  <p className="text-sm text-gray-600">{item.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Paper Backdrop Options */}
+        <div className="bg-gray-50 p-8" ref={backdropRef}>
+          <h3 className={`text-2xl font-heading font-black text-gray-900 mb-8 text-center ${backdropVisible ? 'animate-fade-in-up' : 'scroll-hidden'}`}>Paper Backdrop Options</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {backdropOptions.map((option, index) => (
+              <div
+                key={index}
+                className={`bg-white p-6 border-2 border-gray-200 hover:border-gray-300 transition-colors duration-200 text-center md:text-left ${
+                  backdropVisible ? 'animate-fade-in-up' : 'scroll-hidden'
+                }`}
+                style={backdropVisible ? { animationDelay: `${index * 100}ms` } : undefined}
+              >
+                <div className="flex flex-col items-center justify-center mb-3 md:flex-row md:items-center md:justify-between">
+                  <span className="text-2xl font-heading font-black text-gray-900">{option.option}</span>
+                </div>
+                <p className="text-gray-600" dangerouslySetInnerHTML={{ __html: option.description }}></p>
+              </div>
+            ))}
+          </div>
+
+          <div className="text-center">
+            <h4 className="text-lg font-heading font-black text-gray-900 mb-4">Always Available Colors</h4>
+            <div className="flex justify-center gap-4 mb-4">
+              <div className="text-center">
+                <div className="w-12 h-12 bg-black mb-2"></div>
+                <span className="text-sm font-heading font-black">Black</span>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-gray-500 mb-2"></div>
+                <span className="text-sm font-heading font-black">Grey</span>
+              </div>
+              <div className="text-center">
+                <div className="w-12 h-12 bg-white border-2 border-gray-300 mb-2"></div>
+                <span className="text-sm font-heading font-black">White</span>
+              </div>
+            </div>
+            <p className="text-gray-600 text-sm">
+              For any other color, please check availability before your visit
+            </p>
+            
+            {/* Additional Color Options */}
+            <div className="mt-4">
+              <div className="flex flex-wrap justify-center gap-2 mb-2">
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FF0000' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#DC143C' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#8B0000' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FF6347' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FF4500' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FFA500' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FFD700' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FFFF00' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#9ACD32' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#32CD32' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#228B22' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#006400' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#008B8B' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#00CED1' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#00BFFF' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#0000FF' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#000080' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#4B0082' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#8A2BE2' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#9932CC' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FF00FF' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FF1493' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#FFB6C1' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#F5DEB3' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#DEB887' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#D2691E' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#8B4513' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#A0522D' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#696969' }}></div>
+                <div className="w-6 h-6 border border-gray-300" style={{ backgroundColor: '#2F4F4F' }}></div>
+              </div>
+              <p className="text-gray-500 text-xs text-center">
+                Additional colors available upon request
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Equipment;

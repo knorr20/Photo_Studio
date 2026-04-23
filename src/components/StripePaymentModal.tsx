@@ -1,0 +1,280 @@
+import React, { useEffect, useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import { X, CreditCard, Lock, AlertTriangle } from 'lucide-react';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+
+interface StripePaymentModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onPaymentSuccess: (paymentIntentId: string) => void;
+  onPaymentSkip: () => void;
+  amount: number;
+  bookingId: number;
+  clientEmail: string;
+  description: string;
+  stripePublishableKey: string;
+}
+
+// Inner form — must live inside <Elements>
+const CheckoutForm: React.FC<{
+  amount: number;
+  bookingId: number;
+  clientSecret: string;
+  onPaymentSuccess: (paymentIntentId: string) => void;
+  onPaymentSkip: () => void;
+  onClose: () => void;
+}> = ({ amount, bookingId, clientSecret, onPaymentSuccess, onPaymentSkip, onClose }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
+
+  const handlePay = async () => {
+    if (!stripe || !elements) return;
+    setIsProcessing(true);
+    setPaymentError(null);
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {},
+      redirect: 'if_required',
+    });
+
+    if (error) {
+      setPaymentError(error.message ?? 'Payment failed. Please try again.');
+      setIsProcessing(false);
+      return;
+    }
+
+    if (paymentIntent?.status === 'succeeded') {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-payment`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'confirm_payment',
+            paymentIntentId: paymentIntent.id,
+            bookingId,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error ?? 'Failed to save payment');
+      } catch {
+        // non-blocking — payment succeeded, just log update failed
+      }
+      onPaymentSuccess(paymentIntent.id);
+    } else {
+      setPaymentError('Payment was not completed. Please try again.');
+      setIsProcessing(false);
+    }
+  };
+
+  // clientSecret is passed via Elements options, just used to satisfy lint
+  void clientSecret;
+
+  return (
+    <div className="p-6">
+      {/* Amount summary */}
+      <div className="mb-6 flex items-stretch gap-0 border border-gray-200 overflow-hidden">
+        <div className="flex-1 bg-gray-950 text-white px-5 py-4">
+          <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-1">Amount Due</div>
+          <div className="text-4xl font-black tracking-tight">${amount}</div>
+        </div>
+        <div className="bg-gray-100 px-5 py-4 flex flex-col justify-center text-right border-l border-gray-200">
+          <div className="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-1">Booking</div>
+          <div className="text-lg font-bold text-gray-800">#{bookingId}</div>
+        </div>
+      </div>
+
+      {/* Loading state */}
+      {!isReady && (
+        <div className="flex items-center justify-center gap-2 py-8 text-gray-400 text-sm">
+          <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+          Preparing payment form...
+        </div>
+      )}
+
+      {/* Stripe PaymentElement — shows Apple Pay, Google Pay, card, etc. */}
+      <div className={isReady ? 'mb-5' : 'opacity-0 h-0 overflow-hidden'}>
+        <PaymentElement
+          onReady={() => setIsReady(true)}
+          options={{
+            layout: { type: 'tabs', defaultCollapsed: false },
+            wallets: { applePay: 'auto', googlePay: 'auto' },
+          }}
+        />
+      </div>
+
+      {paymentError && (
+        <div className="bg-red-50 border border-red-200 p-3 flex items-start gap-2 mb-4">
+          <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+          <p className="text-red-700 text-sm">{paymentError}</p>
+        </div>
+      )}
+
+      <button
+        onClick={handlePay}
+        disabled={!isReady || !stripe || isProcessing}
+        className={`w-full py-4 px-6 font-bold text-base tracking-wide transition-all duration-200 flex items-center justify-center gap-2 ${
+          !isReady || !stripe || isProcessing
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+            : 'bg-gray-950 hover:bg-gray-800 text-white'
+        }`}
+      >
+        {isProcessing ? (
+          <>
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Processing...
+          </>
+        ) : (
+          <>
+            <Lock className="h-4 w-4" />
+            Pay ${amount}
+          </>
+        )}
+      </button>
+
+      <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-gray-400">
+        <Lock className="h-3 w-3" />
+        Payments processed securely by Stripe
+      </div>
+    </div>
+  );
+};
+
+const StripePaymentModal: React.FC<StripePaymentModalProps> = ({
+  isOpen,
+  onClose,
+  onPaymentSuccess,
+  onPaymentSkip,
+  amount,
+  bookingId,
+  clientEmail,
+  description,
+  stripePublishableKey,
+}) => {
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [initError, setInitError] = useState<string | null>(null);
+  const [stripePromise] = useState(() => loadStripe(stripePublishableKey));
+
+  useEffect(() => {
+    if (!isOpen) {
+      setClientSecret(null);
+      setInitError(null);
+      return;
+    }
+
+    const create = async () => {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/stripe-payment`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'create_payment_intent',
+            amount,
+            bookingId,
+            description,
+            clientEmail,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok || data.error) throw new Error(data.error ?? 'Failed to initialize payment');
+        setClientSecret(data.clientSecret);
+      } catch (err) {
+        setInitError(err instanceof Error ? err.message : 'Failed to initialize payment');
+      }
+    };
+
+    create();
+  }, [isOpen, amount, bookingId, description, clientEmail]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm overflow-y-auto z-50"
+      style={{ WebkitOverflowScrolling: 'touch' } as React.CSSProperties}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Payment"
+    >
+      <div className="flex min-h-full items-start justify-center p-4 py-8">
+      <div className="bg-white max-w-md w-full shadow-2xl">
+        {/* Header */}
+        <div className="bg-gray-900 text-white px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-studio-green rounded-full flex items-center justify-center flex-shrink-0">
+              <CreditCard className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <div className="font-bold text-lg leading-tight">Pay for Studio</div>
+              <div className="text-gray-400 text-xs">Secure payment via Stripe</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors" aria-label="Close">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {initError ? (
+          <div className="p-6">
+            <div className="bg-red-50 border border-red-200 p-4 flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-red-700 text-sm">{initError}</p>
+            </div>
+          </div>
+        ) : !clientSecret ? (
+          <div className="p-6 flex items-center justify-center gap-2 py-16 text-gray-400 text-sm">
+            <div className="w-4 h-4 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
+            Initializing...
+          </div>
+        ) : (
+          <Elements
+            stripe={stripePromise}
+            options={{
+              clientSecret,
+              appearance: {
+                theme: 'stripe',
+                variables: {
+                  colorPrimary: '#111827',
+                  colorBackground: '#ffffff',
+                  colorText: '#111827',
+                  colorDanger: '#ef4444',
+                  fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+                  borderRadius: '0px',
+                },
+              },
+            }}
+          >
+            <CheckoutForm
+              amount={amount}
+              bookingId={bookingId}
+              clientSecret={clientSecret}
+              onPaymentSuccess={onPaymentSuccess}
+              onPaymentSkip={onPaymentSkip}
+              onClose={onClose}
+            />
+          </Elements>
+        )}
+      </div>
+      </div>
+    </div>
+  );
+};
+
+export default StripePaymentModal;

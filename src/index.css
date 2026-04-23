@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Windows 95 Admin Panel Styles */
+@layer components {
+  .win95-button {
+    @apply bg-win95-gray border-2 border-win95-gray-light border-t-white border-l-white border-r-win95-gray-dark border-b-win95-gray-dark font-win95 text-win95-black px-4 py-1 cursor-pointer;
+  }
+  
+  .win95-button:hover {
+    @apply bg-win95-gray-light;
+  }
+  
+  .win95-button:active {
+    @apply border-t-win95-gray-dark border-l-win95-gray-dark border-r-white border-b-white bg-win95-gray;
+  }
+  
+  .win95-button:disabled {
+    @apply text-win95-gray-dark cursor-not-allowed bg-win95-gray;
+  }
+  
+  .win95-input {
+    @apply bg-white border-2 border-win95-gray-dark border-t-win95-gray-dark border-l-win95-gray-dark border-r-win95-gray-light border-b-win95-gray-light font-win95 text-win95-black px-2 py-1;
+  }
+  
+  .win95-window {
+    @apply bg-win95-gray border-2 border-win95-gray-light border-t-white border-l-white border-r-win95-gray-dark border-b-win95-gray-dark shadow-win95-window;
+  }
+  
+  .win95-window-header {
+    @apply bg-win95-blue text-white font-win95 font-bold px-2 py-1 flex items-center justify-between;
+  }
+  
+  .win95-panel {
+    @apply bg-win95-gray border-2 border-win95-gray-light border-t-white border-l-white border-r-win95-gray-dark border-b-win95-gray-dark;
+  }
+  
+  .win95-tab {
+    @apply bg-win95-gray border-2 border-win95-gray-light border-t-white border-l-white border-r-win95-gray-dark border-b-win95-gray-dark font-win95 px-4 py-2 cursor-pointer;
+  }
+  
+  .win95-tab.active {
+    @apply border-b-win95-gray bg-win95-gray;
+  }
+  
+  .win95-table {
+    @apply bg-white border-2 border-win95-gray-dark border-t-win95-gray-dark border-l-win95-gray-dark border-r-win95-gray-light border-b-win95-gray-light;
+  }
+  
+  .win95-start-menu {
+    @apply absolute bottom-10 left-1 bg-win95-gray border-2 border-win95-gray-light border-t-white border-l-white border-r-win95-gray-dark border-b-win95-gray-dark shadow-win95-window min-w-[200px];
+  }
+  
+  .win95-menu-item {
+    @apply flex items-center gap-3 px-4 py-2 font-win95 text-win95-black cursor-pointer hover:bg-win95-blue hover:text-white transition-colors duration-150;
+  }
+
+  /* Media Player Slider Styles */
+  .slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: #00ff00;
+    cursor: pointer;
+    border-radius: 0;
+    border: none;
+  }
+}
+  .slider::-webkit-slider-runnable-track {
+    background: #333333;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  .slider::-moz-range-track {
+    background: #333333;
+    height: 4px;
+    border-radius: 2px;
+    border: none;
+  }
+
+@layer base {
+  body {
+    @apply font-body;
+  }
+}
+
+#studio,
+#equipment,
+#booking,
+#contact {
+  scroll-margin-top: 80px;
+}
+
+/* Scroll-reveal animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseBadge {
+  0%, 100% {
+    text-shadow: 0 0 4px rgba(245, 236, 208, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 12px rgba(245, 236, 208, 0.7), 0 0 24px rgba(245, 236, 208, 0.3);
+  }
+}
+
+.scroll-hidden {
+  opacity: 0;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out both;
+}
+
+.animate-fade-in-scale {
+  animation: fadeInScale 0.6s ease-out both;
+}
+
+.animate-pulse-badge {
+  animation: pulseBadge 2.5s ease-in-out infinite;
+}
+
+/* Custom bullet styling for Privacy Policy */
+#privacy-policy-content ul li {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+#privacy-policy-content ul li::before {
+  content: "-";
+  position: absolute;
+  left: 0;
+  color: #4b5563;
+  font-weight: 500;
+}
+
+/* Custom bullet styling for Terms of Service */
+#terms-of-service-content ul li {
+  position: relative;
+  padding-left: 1.5em;
+}
+
+#terms-of-service-content ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: #4b5563;
+  font-weight: 500;
+}
